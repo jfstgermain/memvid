@@ -2834,19 +2834,8 @@ impl Memvid {
 
     fn ensure_mutation_allowed(&mut self) -> Result<()> {
         self.ensure_writable()?;
-        if self.toc.ticket_ref.issuer == "free-tier" {
-            return Ok(());
-        }
-        match self.tier() {
-            Tier::Free => Ok(()),
-            tier => {
-                if self.toc.ticket_ref.issuer.trim().is_empty() {
-                    Err(MemvidError::TicketRequired { tier })
-                } else {
-                    Ok(())
-                }
-            }
-        }
+        // FORK PATCH: self-hosted builds never require a ticket.
+        Ok(())
     }
 
     pub(crate) fn tier(&self) -> Tier {
@@ -2860,11 +2849,9 @@ impl Memvid {
     }
 
     pub(crate) fn capacity_limit(&self) -> u64 {
-        if self.toc.ticket_ref.capacity_bytes != 0 {
-            self.toc.ticket_ref.capacity_bytes
-        } else {
-            self.tier().capacity_bytes()
-        }
+        // FORK PATCH: self-hosted builds ignore ticket/tier capacity and use a
+        // 1 TB practical ceiling instead of the 50 MB free-tier cap.
+        1024 * 1024 * 1024 * 1024
     }
 
     /// Get current storage capacity in bytes.
