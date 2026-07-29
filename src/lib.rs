@@ -1389,6 +1389,10 @@ mod tests {
 
     #[test]
     #[allow(deprecated)]
+    // FORK PATCH: capacity enforcement is intentionally disabled in this fork
+    // (capacity_limit() always returns a 1 TB ceiling), so this test's
+    // expectation no longer holds. Kept for reference against upstream.
+    #[ignore = "fork disables capacity enforcement"]
     fn capacity_limit_enforced() {
         run_serial_test(|| {
             let dir = tempdir().expect("tmp");
